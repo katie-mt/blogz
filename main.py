@@ -28,6 +28,16 @@ class Blog(db.Model):
 
         #TODO We now want to go into the python shell to create the user table and at least one blog post object for us to work with.  See video 5.
 
+@app.route('/', methods=['GET'])
+def blog_home():
+    new_post = request.args.get('title', 'blog_entry')
+    if new_post:
+        display_blogs = Blog.query.all()
+        return render_templates('blog_list.html')
+    
+    else:
+        return render_templates('blog_list.html')
+
 
 #adding handler to display the registration template
 @app.route('/newpost', methods=['POST', 'GET'])
@@ -50,6 +60,4 @@ def new_blog():
     #add new_entry to pass into the blog_list.html template
     return render_template('blog_list.html', display_blogs=display_blogs)
 
-
-
-    
+app.run()

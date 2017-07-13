@@ -2,23 +2,21 @@
 
 {% block content %}
 
-<h1></h1>
-<form action="/" method="post">
-    <table>
-        <tr>
-            <td><label for="email">Email</label></td>
-            <td>
-                <input name="email" type="email" value="{{ email }}">
-            </td>
-        </tr>
-        <tr>
-            <td><label for="password">Password</label></td>
-            <td>
-                <input name="password" type="password">
-            </td>
-        </tr>
-    </table>
-    <input type="submit" value="Login">
-</form>
+<!--Make an unordered list for each of my blog posts
+for blog entry in the datastructure,make a list item.  Use jinja notation - templating code to take datacode and iterate through it and
+generate html from the datastructure -->
+
+<!--if there is both a title and blog_entry then creates an unordered list of blogs-->
+
+    <ul> {% for blog in display_blogs %}
+        <li>
+            <h1>{{blog.title}}</h1>
+            <p>{{blog.blog_entry}}</p>
+        </li>
+
+        {% endfor %}
+    </ul>
+
 
 {% endblock %}
+
