@@ -19,6 +19,37 @@ class Blog(db.Model):
     #represents the blog title field, represented as a string with a limit of 120 characters.
     title = db.Column(db.String(120))
     #represents the blog post content, represented as a string with a limit of 1000 characters.
-    blog_post = db.Column(db.String(1000))
-    #TODO:  Does the variable name 'blog_post' need to match any objects or variables in the add_new_post.html file?
+    blog_entry = db.Column(db.String(1000))
 
+    #initializer (otherwise known as constructor) for the Blog class.  Blog posts should have both a title and blog_entry.  Add these as parameters to the constructor
+    def __init__(self, title, blog_entry):
+        self.title = title
+        self.blog_entry = blog_entry
+
+        #TODO We now want to go into the python shell to create the user table and at least one blog post object for us to work with.  See video 5.
+
+
+#adding handler to display the registration template
+@app.route('/newpost', methods=['POST', 'GET'])
+def new_blog():
+    #if the request method is POST then we request the title and blog_entry from the form.
+    if request.method =='POST':
+        #requests the title from the form
+        title = request.form['title']
+        #requests the blog_entry from the form
+        blog_entry = request.form['blog_entry']
+        #creates blog entry that is a blog entry object
+        new_blog_entry = Blog(title, blog_entry)
+        #put the new_blog_entry in the database
+        db.session.add(new_blog_entry)
+        db.session.commit()
+    
+    #handler method to display all blog posts from the database
+    display_blogs = Blog.query.all()
+
+    #add new_entry to pass into the blog_list.html template
+    return render_template('blog_list.html', display_blogs=display_blogs)
+
+
+
+    

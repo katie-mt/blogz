@@ -1,17 +1,18 @@
 {% extends "base.html" %}
 {% block content %}
 
-    <!--This is the form-->
+    <!--This is the form at the /newpost route-->
     <h1>Add a Blog Entry</h1>
-    <form method='post'>
-        <label>
-            Title for your new blog:
-            <input type="text" name='title' />
-        </label>
+    <form method='post' action = '/newpost'>
+        <label for="title_field">Title for Your Blog</label>
+        <input id="title_field" type="text" name='title' />
         <br></br>
-        <textarea name='Your new blog:' name='Your new blog:'></textarea>
+        <label for="blog_entry">Your new blog text:</label>
+        <textarea id ="blog_entry" name='blog_entry'></textarea>
         <br>
         <input type="submit" value='Add Entry' />
     </form>
 
 {% endblock %}
+
+
