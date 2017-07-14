@@ -34,7 +34,7 @@ class Blog(db.Model):
 
 @app.route('/', methods=['GET'])
 def blog_home():
-    new_post = request.args.get('title', 'blog_entry')
+    new_post = .args.get('title', 'blog_entry')
     if new_post:
         #handler method to display all blog posts from the database
         display_blogs = Blog.query.all()
@@ -58,8 +58,9 @@ def new_blog():
         #put the new_blog_entry in the database
         db.session.add(new_blog_entry)
         db.session.commit()
-        #if it is a POST then render the blog_list page at the '/' route
-        return render_template('blog_list.html')
+        #if it is a POST then render then redirect to the blog_list.html page
+        return redirect ('/')
+
 
     #add new_entry to pass into the blog_list.html template
     return render_template('add_new_post.html')
