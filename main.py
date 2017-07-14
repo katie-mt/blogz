@@ -26,12 +26,17 @@ class Blog(db.Model):
         self.title = title
         self.blog_entry = blog_entry
 
-        #TODO We now want to go into the python shell to create the user table and at least one blog post object for us to work with.  See video 5.
+    def is_valid(self):
+        if self.title and self.blog_entry and self.created:
+            return TRUE
+        else:
+            return FALSE
 
 @app.route('/', methods=['GET'])
 def blog_home():
     new_post = request.args.get('title', 'blog_entry')
     if new_post:
+        #handler method to display all blog posts from the database
         display_blogs = Blog.query.all()
         return render_template('blog_list.html')
     
@@ -40,7 +45,7 @@ def blog_home():
 
 
 #adding handler to display the registration template
-@app.route('/newpost', methods=['POST', 'GET'])
+@app.route('/addnewpost', methods=['POST', 'GET'])
 def new_blog():
     #if the request method is POST then we request the title and blog_entry from the form.
     if request.method =='POST':
@@ -53,14 +58,25 @@ def new_blog():
         #put the new_blog_entry in the database
         db.session.add(new_blog_entry)
         db.session.commit()
-    
-    #handler method to display all blog posts from the database
-    display_blogs = Blog.query.all()
+        #if it is a POST then render the blog_list page at the '/' route
+        return render_template('blog_list.html')
 
     #add new_entry to pass into the blog_list.html template
-    return render_template('blog_list.html', display_blogs=display_blogs)
+    return render_template('add_new_post.html')
 
 #TODO:  If either the blog title or blog body is left empty in the new post form, the form is rendered again, with a helpful error message and any previously-entered content in the same form inputs.
 
 if "__main__" == __name__:
     app.run()
+
+
+
+#Routes
+# "/" - GET:redirect to "/blog"
+# "/blog" - GET:Display list of all entries with default sort order(oldest-first)
+# "/blog?entry=ID" GET: display entry with id=ID
+# "/new_entry" - GET display new entery form; POST; process entry 
+
+#def index
+#def display_blog_entries
+#def 
