@@ -33,10 +33,10 @@ def blog_home():
     new_post = request.args.get('title', 'blog_entry')
     if new_post:
         display_blogs = Blog.query.all()
-        return render_templates('blog_list.html')
+        return render_template('blog_list.html')
     
     else:
-        return render_templates('blog_list.html')
+        return render_template('blog_list.html')
 
 
 #adding handler to display the registration template
@@ -60,4 +60,7 @@ def new_blog():
     #add new_entry to pass into the blog_list.html template
     return render_template('blog_list.html', display_blogs=display_blogs)
 
-app.run()
+#TODO:  If either the blog title or blog body is left empty in the new post form, the form is rendered again, with a helpful error message and any previously-entered content in the same form inputs.
+
+if "__main__" == __name__:
+    app.run()
