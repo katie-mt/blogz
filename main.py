@@ -58,7 +58,7 @@ def new_blog():
         #put the new_blog_entry in the database
         db.session.add(new_blog_entry)
         db.session.commit()
-        #if it is a POST then render the blog_list page at the '/' route
+        #if it is a POST request then render the blog_list page at the '/' route
         return render_template
 
     #add new_entry to pass into the blog_list.html template
