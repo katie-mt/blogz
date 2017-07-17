@@ -2,17 +2,15 @@
 
 {% block content %}
 
-<!--Displays one blog post at route '/individual_post'
+<!--Displays one blog post at route '/blog'
 If a user clicks on a hyperlink of the blog title from the home page ('/blog'), user will be taken to this page where
 Jinja2 will template code so that the title and blog_entry (body) of the blog is piped into this page.-->
 
     <ul> 
         <li>
-            <h1>{{blog.title}}</h1>
-            <p>{{blog.blog_entry}}</p>
+            <h1>{{display_blog.title}}</h1>
+            <p>{{display_blog.blog_entry}}</p>
         </li>
-
-        {% endfor %}
     </ul>
 
 

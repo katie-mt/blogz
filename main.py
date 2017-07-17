@@ -26,23 +26,20 @@ class Blog(db.Model):
         self.title = title
         self.blog_entry = blog_entry
 
-    #def is_valid(self):
-        #if self.title and self.blog_entry and self.created:
-            #return True
-        #else:
-            #return False
-
 @app.route('/blog', methods=['GET'])
 def blog_home():
-    #new_post = request.args.get('title', 'blog_entry')
-    #if new_post:
-    #handler method to display all blog posts from the database
-    display_blogs = Blog.query.all()
-    #display_blogs_display_blogs.  Keyword argument.   
-    return render_template('blog_list.html', display_blogs=display_blogs)
+    #GET request to receive the individual id that the user is reqeusting
+    individual_id = request.args.get('id')
+    if not individual_id:
+        #handler method to display all blog posts from the database
+        display_blogs = Blog.query.all()
+        #display_blogs_display_blogs.  Keyword argument.   
+        return render_template('blog_list.html', display_blogs=display_blogs)
     
-    #else:
-
+    else:
+        #retrieve the id field from the database
+        requested_blog_post = Blog.query.get(individual_id)
+        return render_template('individual_post.html', display_blog=requested_blog_post)       
 
 #adding handler to display the registration template
 @app.route('/newpost', methods=['POST', 'GET'])
@@ -65,7 +62,7 @@ def new_blog():
         if not blog_entry:
             blog_entry_error = 'Please enter a valid blog post'
         
-        #if there is a title_error or blog_entry_error then render the template and keep the title and blog_entry entries
+        #if there is a title_error or blog_entry_error then re-render the template and keep the title and blog_entry entries
         if title_error or blog_entry_error:
             return render_template('add_new_post.html', title=title, blog_entry=blog_entry, title_error=title_error, blog_entry_error=blog_entry_error)
         
@@ -75,25 +72,11 @@ def new_blog():
             #put the new_blog_entry in the database
             db.session.add(new_blog_entry)
             db.session.commit()
-            #if it is a POST request then redirect to the blog_list page at the '/blog' route
-            return redirect ('/blog')
+            #redirect to the blog_list page at the '/blog' route with the ?= appended with the id number of the blog post
+            return redirect ('/blog?=' + str(new_blog_entry.id))
 
-    #If GET request add new_entry to pass into the blog_list.html template
+    #If GET request add new_entry to pass into the add_new_post.html template
     return render_template('add_new_post.html')
-
-#TODO:  If either the blog title or blog body is left empty in the new post form, the form is rendered again, with a helpful error message and any previously-entered content in the same form inputs.
 
 if "__main__" == __name__:
     app.run()
-
-
-
-#Routes
-# "/" - GET:redirect to "/blog"
-# "/blog" - GET:Display list of all entries with default sort order(oldest-first)
-# "/blog?entry=ID" GET: display entry with id=ID
-# "/new_entry" - GET display new entery form; POST; process entry 
-
-#def index
-#def display_blog_entries
-#def 
