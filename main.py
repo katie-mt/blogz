@@ -73,10 +73,17 @@ def new_blog():
             db.session.add(new_blog_entry)
             db.session.commit()
             #redirect to the blog_list page at the '/blog' route with the ?= appended with the id number of the blog post
-            return redirect ('/blog?=' + str(new_blog_entry.id))
-
-    #If GET request add new_entry to pass into the add_new_post.html template
-    return render_template('add_new_post.html')
+            #id = new_blog_entry.id
+            #redirect to the blog_list page at the '/blog' route with the ?= appended with the id number of the blog post
+            #return redirect ('/blog?=' + str(new_blog_entry.id))
+            #if new_blog_entry:
+            #display_blog = Blog.query.get(new_blog_entry)
+            #return render_template('individual_post.html', display_blog)
+            return render_template('individual_post.html', new_blog_entry)
+    else:
+        #grabs all the blogs from the database
+        display_blogs = Blog.query.all()
+        return render_template('add_new_post.html')
 
 if "__main__" == __name__:
     app.run()

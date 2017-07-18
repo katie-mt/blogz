@@ -11,10 +11,12 @@ generate html from the datastructure -->
 <!--if there is both a title and blog_entry then creates an unordered list of blogs-->
 
     <ul> {% for blog in display_blogs %}
-        <li>
-            <h1>{{blog.title}}</h1>
-            <p>{{blog.blog_entry}}</p>
-        </li>
+    
+        <h1>
+            <a href="/blog?id={{blog.id}}">{{blog.title}}</a>
+        </h1>
+        <p>{{blog.blog_entry}} </p>
+    
 
         {% endfor %}
     </ul>
