@@ -1,10 +1,10 @@
-from flask import Flask, request, redirect, render_template
+from flask import Flask, request, redirect, render_template, session, flash
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 #creates the app
 app.config['DEBUG'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://build-a-blog:beproductive2@localhost:8889/build-a-blog'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:beproductive3@localhost:8889/blogz'
 #connection string used to connect the database.  Connecting to mysql database using a pysysql driver, username, password, hosting is local, port number, name of database.
 app.config['SQLALCHEMY_ECHO'] = True
 #provides additional details on object relational mapping by using SQLAlcchemy to echo the SQL commands in the terminal when app is running.
@@ -20,11 +20,98 @@ class Blog(db.Model):
     title = db.Column(db.String(120))
     #represents the blog post content, represented as a string with a limit of 1000 characters.
     blog_entry = db.Column(db.String(1000))
+    #foreign key linking the user's id to the blog past (adds new column)
+    owner = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     #initializer (otherwise known as constructor) for the Blog class.  Blog posts should have both a title and blog_entry.  Add these as parameters to the constructor
-    def __init__(self, title, blog_entry):
+    def __init__(self, title, blog_entry, owner):
         self.title = title
         self.blog_entry = blog_entry
+        self.owner = owner
+
+
+#add user class model.  Declare new class called user that extends db.Model.  
+class User(db.Model):
+
+    #specify the datafields that should go into columns.  Set primary key
+    id = db.Column(db.Integer, primary_key=True)
+    #our users will have email and password properties
+    #we shouldn't have two different accounts associated with an email.  unique=True ensures that SQLAlchemy will not allow the creation of two separate users with the same email. 
+    email = db.Column(db.String(120), unique=True)
+    password = db.Column(db.String(120))
+    #specify that a user can have many blogs.  This isn't going to be a column because there won't be a column in the database for this.  But we want to establish that there is a relationship here that we want the relational database manager SQLAlchemy to manage for us.  
+    #SQLAlchemy should populate this blogs list with things from the class task such that their owner property is equal to the specific user that is in consideration. 
+    blogs = db.relationship('Blog', backref='owner')
+
+    #initializer (constructor) for the user class
+    #users should always have emails and passwords so we'll add those as parameters to our constructor
+    def __init__(self, email, password):
+        self.email = email
+        self.password = password
+        #we then went into python shell to create the user table and at least one user object for us to work with.  See video 5 for details.
+
+
+#adding handler to display the login template
+#add methods argument to ensure that login can process requests
+@app.route('/login', methods=['POST', 'GET'])
+def login():
+    #check for the request type.  On a GET request I just want to render the login form and on a POST request I want to get data out of the request and try to log the user in.
+    if request.method == 'POST':
+        #remember that there are two inputs on the login form, one that is name=email and one that is name=password.  Get this data out of the request
+        ##request.form is the python dictionary that contains Post data or data sent in a post request
+        email = request.form['email']
+        password = request.form['password']
+        #try to verify the user's password.  Need to retrieve the user and the associated email from the database. 
+        #.first.  If we expect that our result set will only contain one thing or we want to get the first thing. This will retrieve that one item
+        #this will return a user with the given email with the given email if the user exists.  If the user doesn't exist then the user variable will be equal to the special value none. 
+        user = User.query.filter_by(email=email).first()
+        #to verify that not only do i have the correct password but do I have a user in the system with the given email
+        #this will check first, does the user exist.  If this is none (query did not return a user with the given email address from the database) then this will be none and the conditional will short circuit.
+        #if the user does exist then we will go ahead and compare the password.  At which point we would want to login
+        if user and user.password == password:
+            #a session is an object that you can use to store data that is associated with a specific user from one request to another. 
+            #when a user logs in, put in session (session is a dictionary) a piece of data.  Under email input the email.  Add this both here and under register.
+            session['email'] = email
+            #here we want to give the user a message that says they are logged in.  This puts the message in a queue for us to access within our base template
+            flash("Logged in")
+            #when a user logs in, we are going to redirect them to the homepage
+            return redirect('/blog')   
+        else:
+            #when the login fails, let user know why.  We also add a category to add styling on the front, this is the second parameter.  For this one, we named the category error.  To make a category, must also edit the loop in the base template.
+            flash('User password incorrect, or user does not exist', 'error')
+    
+    return render_template('login.html')
+    #if the user doesn't login, we will return them back to the login form
+
+#adding handler to display the registration template
+@app.route('/signup', methods=['POST', 'GET'])
+def signup():
+    if request.method == 'POST':
+    #if we are dealing with a request method of post then create a new user
+    #in the registration template we have an email, password and verify.  Retrieve those parameters from the database
+        email = request.form['email']
+        password = request.form['password']
+        verify = request.form['verify']
+
+        #if we validate the data and everything is good, then go ahead and create a new user
+        #check that the user does not exist
+        existing_user = User.query.filter_by(email=email).first()
+        #if there is not an existing user then create a new user from the input information
+        if not existing_user:
+            new_user = User(email, password)
+            db.session.add(new_user)
+            db.session.commit()
+            #we put this above under login as well.  Once a user registers and we put them in the database, we'll log them in by putting their email in the session.
+            #cookies will track who is logging in so server knows who to automatically log in.
+            session['email'] = email
+            #if there is not an existing user, redirect the user back to the root
+            return redirect('/signup')
+        else:
+            #TODO - return a message that tells the user that they alreaday exist in the database
+            return "<h1>Duplicate user</h1>"
+
+    return render_template('signup.html')
+
 
 @app.route('/blog', methods=['GET'])
 def blog_home():
