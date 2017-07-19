@@ -79,7 +79,9 @@ def new_blog():
             #if new_blog_entry:
             #display_blog = Blog.query.get(new_blog_entry)
             #return render_template('individual_post.html', display_blog)
-            return render_template('individual_post.html', new_blog_entry)
+            url = "/blog?id=" + str(new_blog_entry.id)
+            return redirect(url)
+            #return render_template('individual_post.html', new_blog_entry)
     else:
         #grabs all the blogs from the database
         display_blogs = Blog.query.all()
