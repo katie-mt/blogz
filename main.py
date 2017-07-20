@@ -10,6 +10,7 @@ app.config['SQLALCHEMY_ECHO'] = True
 #provides additional details on object relational mapping by using SQLAlcchemy to echo the SQL commands in the terminal when app is running.
 db = SQLAlchemy(app)
 #sets variable equal to the results of the SQLAlchemy object.  Calls the SQLAlchemy constructor and passes in the flask application in order to bind the two together.  This creates a database object that can be used within the application to interface with the database via Python code.
+app.secret_key = 'y337kGcys&zP3B'
 
 #Creates a persistent class to help add data to the database.  The class will represent the application specific data that we want to store in the database.
 #extends the db.model class.  Allows task objects to be translated to a class settign by SQLAlchemy.
@@ -21,9 +22,9 @@ class Blog(db.Model):
     #represents the blog post content, represented as a string with a limit of 1000 characters.
     blog_entry = db.Column(db.String(1000))
     #foreign key linking the user's id to the blog past (adds new column)
-    owner = db.Column(db.Integer, db.ForeignKey('user.id'))
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    #initializer (otherwise known as constructor) for the Blog class.  Blog posts should have both a title and blog_entry.  Add these as parameters to the constructor
+    #initializer (otherwise known as constructor) for the Blog class.  Blog posts should have a title, blog_entry and owner.  Add these as parameters to the constructor
     def __init__(self, title, blog_entry, owner):
         self.title = title
         self.blog_entry = blog_entry
@@ -86,6 +87,7 @@ def login():
 #adding handler to display the registration template
 @app.route('/signup', methods=['POST', 'GET'])
 def signup():
+
     if request.method == 'POST':
     #if we are dealing with a request method of post then create a new user
     #in the registration template we have an email, password and verify.  Retrieve those parameters from the database
@@ -105,7 +107,7 @@ def signup():
             #cookies will track who is logging in so server knows who to automatically log in.
             session['email'] = email
             #if there is not an existing user, redirect the user back to the root
-            return redirect('/signup')
+            return redirect('/blog')
         else:
             #TODO - return a message that tells the user that they alreaday exist in the database
             return "<h1>Duplicate user</h1>"
@@ -127,6 +129,19 @@ def blog_home():
         #retrieve the id field from the database
         requested_blog_post = Blog.query.get(individual_id)
         return render_template('individual_post.html', display_blog=requested_blog_post)       
+
+#new function.  Special type of function to run for every request (therefore no handler).  For every request, we want it to run and see if the user has logged in.
+#special decorator - run this function before you call the request handler for the incoming request.  
+@app.before_request
+def require_login():
+    #create a whitelist or list of pages that you don't need to be logged in to view
+    #list called allowed routes.  List of routes that users don't have to be logged in to see.  Don't need to login to see the login route or the register route
+    allowed_routes = ['login', 'signup']
+    #if I say that the endpoint is not login and not register (request.endpoint is not in the allowed routes) then this means that i'm wanting to force the user to login meaning i should also check if the email is in session.  If the request.endpoint is in the allowed routes then skip over the redirect and process requests as previously
+    if request.endpoint not in allowed_routes and 'email' not in session:
+    #if the user has not logged in yet
+        #redirect to the login page
+        return redirect('/login')
 
 #adding handler to display the registration template
 @app.route('/newpost', methods=['POST', 'GET'])
@@ -155,7 +170,10 @@ def new_blog():
         
         else:
             #creates blog entry that is a blog entry object
-            new_blog_entry = Blog(title, blog_entry)
+            email = session['email']
+            owner = User.query.filter_by(email=email).first()
+            
+            new_blog_entry = Blog(title, blog_entry, owner)
             #put the new_blog_entry in the database
             db.session.add(new_blog_entry)
             db.session.commit()
