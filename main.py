@@ -76,7 +76,7 @@ def login():
             #here we want to give the user a message that says they are logged in.  This puts the message in a queue for us to access within our base template
             flash("Logged in")
             #when a user logs in, we are going to redirect them to the homepage
-            return redirect('/blog')   
+            return redirect('/newpost')   
         else:
             #when the login fails, let user know why.  We also add a category to add styling on the front, this is the second parameter.  For this one, we named the category error.  To make a category, must also edit the loop in the base template.
             flash('User password incorrect, or user does not exist', 'error')
