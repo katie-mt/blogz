@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!--Make an unordered list for each of the usernames
+Use jinja notation - templating code to take datacode and iterate through it and
+generate html from the datastructure -->
+
+<!--This is the home page ('/' route)-->
+
+<!--if there is both a title and blog_entry then creates an unordered list of blogs-->
+
+    <ul> {% for users in display_usernames %}
+    
+        <h1>
+            <a href="/?id={{display_usernames.id}}">{{display_usernames.username}}</a>
+        </h1>
+        <p>{{display_usernames.username}} </p>
+    
+
+        {% endfor %}
+    </ul>
+
+
+{% endblock %}
