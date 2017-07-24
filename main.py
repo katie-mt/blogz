@@ -192,5 +192,15 @@ def new_blog():
         display_blogs = Blog.query.all()
         return render_template('add_new_post.html')
 
+#log out function
+@app.route('/logout', methods = ['POST'])
+def logout():
+    owner = User.query.filter_by(username=session['username']).first()
+    if request.method == 'POST':
+        session['username'] = owner.username
+        #remove the user's username from the session
+        del session['username']
+        return redirect ('/blog')
+
 if "__main__" == __name__:
     app.run()
