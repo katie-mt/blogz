@@ -53,29 +53,8 @@ class User(db.Model):
 
 @app.route('/', methods=['GET'])
 def index():
-    #GET request to receive the individual id that the user is reqeusting
-    individual_id = request.args.get('id')
-    if individual_id:
-        #handler method to display all usernames from the database
-        display_usernames = User.query.get(individual_id)
-        #display_blogs_display_blogs.  Keyword argument.   
-        return render_template('index.html', title="All Users", display_usernames=display_usernames)
-    
-    users=User.query.all()
-    return render_template('index.html', title="All Users", users=users)
-
-
-
-def blog_home():
-    #GET request to receive the individual id that the user is reqeusting
-    individual_id = request.args.get('id')
-    if not individual_id:
-        #handler method to display all blog posts from the database
-        display_blogs = Blog.query.all()
-        #display_blogs_display_blogs.  Keyword argument.   
-        return render_template('blog_list.html', display_blogs=display_blogs)
-
-
+    users = User.query.all()
+    return render_template('index.html', title="Blog Authors", users=users) 
 
 #adding handler to display the login template
 #add methods argument to ensure that login can process requests
@@ -151,7 +130,7 @@ def blog_home():
     else:
         #retrieve the id field from the database
         requested_blog_post = Blog.query.get(individual_id)
-        return render_template('individual_post.html', display_blog=requested_blog_post)       
+        return render_template('individual_post.html', display_blog=requested_blog_post)     
 
 #new function.  Special type of function to run for every request (therefore no handler).  For every request, we want it to run and see if the user has logged in.
 #special decorator - run this function before you call the request handler for the incoming request.  
