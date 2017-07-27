@@ -10,10 +10,11 @@ generate html from the datastructure -->
 
 <!--if there is both a title and blog_entry then creates an unordered list of blogs-->
 
+
     <ul> {% for user in users %}
     
         <h1>
-            <a href="/?id={{user.id}}">{{user.username}}</a>
+            <a href="/blog?user={{user.id}}">{{user.username}}</a>
         </h1>
 
         {% endfor %}

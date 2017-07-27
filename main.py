@@ -1,6 +1,8 @@
 from flask import Flask, request, redirect, render_template, session, flash
 from flask_sqlalchemy import SQLAlchemy
 
+import logging
+
 app = Flask(__name__)
 #creates the app
 app.config['DEBUG'] = True
@@ -116,21 +118,28 @@ def signup():
 
     return render_template('signup.html')
 
-
+#Blog.query.filter_by(id=individual_id)
 @app.route('/blog', methods=['GET'])
 def blog_home():
-    #GET request to receive the individual id that the user is reqeusting
     individual_id = request.args.get('id')
     if not individual_id:
-        #handler method to display all blog posts from the database
-        display_blogs = Blog.query.all()
-        #display_blogs_display_blogs.  Keyword argument.   
-        return render_template('blog_list.html', display_blogs=display_blogs)
+        user = request.args.get('user')
+        if user:
+            display_blogs = Blog.query.filter_by(owner_id=user).all()
+            display_users = User.query.filter_by(id=user).all()
+            app.logger.warning(display_users)
+        else:
+            #handler method to display all blog posts from the database
+            display_blogs = Blog.query.all()
+            #display_blogs_display_blogs.  Keyword argument.   
+            display_users = User.query.all()
+        return render_template('blog_list.html', display_blogs=display_blogs, display_users=display_users)
     
     else:
         #retrieve the id field from the database
         requested_blog_post = Blog.query.get(individual_id)
-        return render_template('individual_post.html', display_blog=requested_blog_post)     
+        display_users = User.query.all()
+        return render_template('individual_post.html', display_blog=requested_blog_post, display_users=display_users) 
 
 #new function.  Special type of function to run for every request (therefore no handler).  For every request, we want it to run and see if the user has logged in.
 #special decorator - run this function before you call the request handler for the incoming request.  
@@ -138,8 +147,9 @@ def blog_home():
 def require_login():
     #create a whitelist or list of pages that you don't need to be logged in to view
     #list called allowed routes.  List of routes that users don't have to be logged in to see.  Don't need to login to see the login route or the register route
-    allowed_routes = ['login', 'signup']
+    allowed_routes = ['login', 'signup', 'blog_home']
     #if I say that the endpoint is not login and not register (request.endpoint is not in the allowed routes) then this means that i'm wanting to force the user to login meaning i should also check if the username is in session.  If the request.endpoint is in the allowed routes then skip over the redirect and process requests as previously
+    app.logger.warning(request.endpoint)
     if request.endpoint not in allowed_routes and 'username' not in session:
     #if the user has not logged in yet
         #redirect to the login page
@@ -202,7 +212,8 @@ def logout():
         session['username'] = owner.username
         #remove the user's username from the session
         del session['username']
-        return redirect ('/blog')
+        #app.logger.warning(session['username'])
+        return redirect('/blog')
 
 if "__main__" == __name__:
     app.run()
